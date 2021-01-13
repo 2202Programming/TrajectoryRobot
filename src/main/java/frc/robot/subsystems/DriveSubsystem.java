@@ -1,19 +1,22 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMaxLowLevel;
 
+import com.kauailabs.navx.frc.AHRS;
 
 import static frc.robot.Constants.*;
 import frc.robot.Constants.CAN;
@@ -22,38 +25,30 @@ public class DriveSubsystem extends SubsystemBase {
 
     //just for notes
 	private final CANSparkMaxLowLevel.MotorType MT = CANSparkMaxLowLevel.MotorType.kBrushless;
-    private final CANSparkMax frontRight = new CANSparkMax(CAN.FR_SMAX, MT);
+  private final CANSparkMax frontRight = new CANSparkMax(CAN.FR_SMAX, MT);
 	private final CANSparkMax frontLeft = new CANSparkMax(CAN.FL_SMAX, MT);
 	private final CANSparkMax backRight = new CANSparkMax(CAN.BR_SMAX, MT);
 	private final CANSparkMax backLeft = new CANSparkMax(CAN.BL_SMAX, MT);
 	private final CANSparkMax middleRight = new CANSparkMax(CAN.MR_SMAX, MT);
-    private final CANSparkMax middleLeft = new CANSparkMax(CAN.ML_SMAX, MT);
-    
+  private final CANSparkMax middleLeft = new CANSparkMax(CAN.ML_SMAX, MT);
+  private final CANEncoder left_encoder = backLeft.getEncoder();
+  private final CANEncoder right_encoder = backRight.getEncoder();
+  
+  private final double kInchesPerRotation = 1.0; //NEED THIS FOR REAL
+
   // The motors on the left side of the drive.
   private final SpeedControllerGroup m_leftMotors =
-      new SpeedControllerGroup(new CANSparkMax(CAN.FL_SMAX, MT),
-      new CANSparkMax(CAN.BL_SMAX, MT));
-
+      new SpeedControllerGroup(backRight);
+        
   // The motors on the right side of the drive.
   private final SpeedControllerGroup m_rightMotors =
-      new SpeedControllerGroup(new CANSparkMax(CAN.FR_SMAX, MT),
-      new CANSparkMax(CAN.BR_SMAX, MT));
+      new SpeedControllerGroup(backLeft);
 
   // The robot's drive
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
-  // The left-side drive encoder
-  private final Encoder m_leftEncoder =
-      new Encoder(DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1],
-                  DriveConstants.kLeftEncoderReversed);
-
-  // The right-side drive encoder
-  private final Encoder m_rightEncoder =
-      new Encoder(DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1],
-                  DriveConstants.kRightEncoderReversed);
-
   // The gyro sensor
-  private final Gyro m_gyro = new ADXRS450_Gyro();
+  private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -62,10 +57,11 @@ public class DriveSubsystem extends SubsystemBase {
    * Creates a new DriveSubsystem.
    */
   public DriveSubsystem() {
-    // Sets the distance per pulse for the encoders
-    m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-    m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-
+    middleRight.follow(backRight);
+    frontRight.follow(backRight);
+		middleLeft.follow(backLeft);
+    frontLeft.follow(backLeft);
+    
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
   }
@@ -73,8 +69,8 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(),
-                      m_rightEncoder.getDistance());
+    m_odometry.update(m_gyro.getRotation2d(), left_encoder.getPosition()*kInchesPerRotation,
+                    right_encoder.getPosition()*kInchesPerRotation);
   }
 
   /**
@@ -92,7 +88,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The current wheel speeds.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+    return new DifferentialDriveWheelSpeeds(left_encoder.getVelocity(), right_encoder.getVelocity());
   }
 
   /**
@@ -131,8 +127,8 @@ public class DriveSubsystem extends SubsystemBase {
    * Resets the drive encoders to currently read a position of 0.
    */
   public void resetEncoders() {
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
+    left_encoder.setPosition(0);
+    right_encoder.setPosition(0);
   }
 
   /**
@@ -141,7 +137,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the average of the two encoder readings
    */
   public double getAverageEncoderDistance() {
-    return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance()) / 2.0;
+    return (left_encoder.getPosition()*kInchesPerRotation + right_encoder.getPosition()*kInchesPerRotation) / 2.0;
   }
 
   /**
@@ -149,8 +145,8 @@ public class DriveSubsystem extends SubsystemBase {
    *
    * @return the left drive encoder
    */
-  public Encoder getLeftEncoder() {
-    return m_leftEncoder;
+  public CANEncoder getLeftEncoder() {
+    return left_encoder;
   }
 
   /**
@@ -158,8 +154,8 @@ public class DriveSubsystem extends SubsystemBase {
    *
    * @return the right drive encoder
    */
-  public Encoder getRightEncoder() {
-    return m_rightEncoder;
+  public CANEncoder getRightEncoder() {
+    return right_encoder;
   }
 
   /**
@@ -196,4 +192,4 @@ public class DriveSubsystem extends SubsystemBase {
     return -m_gyro.getRate();
   }
 }
-}
+
