@@ -19,6 +19,8 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import com.kauailabs.navx.frc.AHRS;
 
 import static frc.robot.Constants.*;
+
+import frc.robot.Constants;
 import frc.robot.Constants.CAN;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -34,7 +36,8 @@ public class DriveSubsystem extends SubsystemBase {
   private final CANEncoder left_encoder = backLeft.getEncoder();
   private final CANEncoder right_encoder = backRight.getEncoder();
   
-  private final double kInchesPerRotation = 1.0; //NEED THIS FOR REAL
+  //feet per motor rotation = wheel circumference / gearbox ratio
+  private final double kFeetPerRotation = (Math.PI * Constants.WHEEL_DIAMETER) / Constants.LOW_GEAR_RATIO;
 
   // The motors on the left side of the drive.
   private final SpeedControllerGroup m_leftMotors =
@@ -57,6 +60,8 @@ public class DriveSubsystem extends SubsystemBase {
    * Creates a new DriveSubsystem.
    */
   public DriveSubsystem() {
+    backRight.setInverted(true); //invert right side motors
+
     middleRight.follow(backRight);
     frontRight.follow(backRight);
 		middleLeft.follow(backLeft);
@@ -68,9 +73,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), left_encoder.getPosition()*kInchesPerRotation,
-                    right_encoder.getPosition()*kInchesPerRotation);
+    // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
+    m_odometry.update(m_gyro.getRotation2d(), left_encoder.getPosition()*kFeetPerRotation,
+                    right_encoder.getPosition()*kFeetPerRotation);
   }
 
   /**
@@ -137,7 +142,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the average of the two encoder readings
    */
   public double getAverageEncoderDistance() {
-    return (left_encoder.getPosition()*kInchesPerRotation + right_encoder.getPosition()*kInchesPerRotation) / 2.0;
+    return (left_encoder.getPosition()*kFeetPerRotation + right_encoder.getPosition()*kFeetPerRotation) / 2.0;
   }
 
   /**

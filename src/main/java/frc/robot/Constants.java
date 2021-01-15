@@ -28,6 +28,9 @@ public final class Constants {
         public static final int MR_SMAX = 34;
         public static final int BR_SMAX = 35;
 
+        public static final double LOW_GEAR_RATIO = 18.0;
+        public static final double WHEEL_DIAMETER = 0.5; //in feet
+
             /**
      * CAN bus IDs
      * 
