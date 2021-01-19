@@ -60,7 +60,7 @@ public class DriveSubsystem extends SubsystemBase {
    * Creates a new DriveSubsystem.
    */
   public DriveSubsystem() {
-    backRight.setInverted(true); //invert right side motors
+    //backRight.setInverted(true); //invert right side motors
 
     middleRight.follow(backRight);
     frontRight.follow(backRight);
