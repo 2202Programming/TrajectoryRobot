@@ -66,7 +66,7 @@ public class DriveSubsystem extends SubsystemBase {
     middleLeft.follow(backLeft);
     frontLeft.follow(backLeft);
 
-    while (m_gyro.isCalibrating()) {
+    while (m_gyro.isCalibrating()) { //wait to zero yaw if calibration is still running
       try {
         Thread.sleep(100);
         System.out.println("calibrating gyro");
@@ -75,7 +75,8 @@ public class DriveSubsystem extends SubsystemBase {
       }
     }
 
-    m_gyro.reset();
+    m_gyro.reset(); //should zero yaw but not working.
+    m_gyro.zeroYaw(); //should zero yaw but not working.
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(readGyro());
   }
@@ -85,12 +86,14 @@ public class DriveSubsystem extends SubsystemBase {
     // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
     m_odometry.update(readGyro(), left_encoder.getPosition()*kFeetPerRotation,
                     right_encoder.getPosition()*kFeetPerRotation);
-    SmartDashboard.putNumber("Gyro", readGyro().getDegrees());
+    SmartDashboard.putNumber("Heading", readGyro().getDegrees());
+    SmartDashboard.putNumber("Left Odometer", left_encoder.getPosition()*kFeetPerRotation);
+    SmartDashboard.putNumber("Right Odometer", right_encoder.getPosition()*kFeetPerRotation);
   }
 
-
+  //Need to use getYaw to get -180 to 180 as expected.
   Rotation2d readGyro() {
-    return Rotation2d.fromDegrees(-m_gyro.getYaw());
+    return Rotation2d.fromDegrees(-m_gyro.getYaw()); //negative to get counterclockwise positive
   }
 
   /**
