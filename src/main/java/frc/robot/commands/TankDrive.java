@@ -9,11 +9,11 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import frc.robot.Robot;
 /**
  * An example command that uses an example subsystem.
  */
-public class ExampleCommand extends CommandBase {
+public class TankDrive extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DriveSubsystem m_subsystem;
 
@@ -22,7 +22,7 @@ public class ExampleCommand extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(DriveSubsystem subsystem) {
+  public TankDrive(DriveSubsystem subsystem) {
     m_subsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -36,6 +36,24 @@ public class ExampleCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+    double forward = -Robot.getOi().getPrimaryJoystick().getRawAxis(1);
+    // forward = Utilities.deadband(forward);
+    // // Square the forward stick
+    // forward = Math.copySign(Math.pow(forward, 2.0), forward);
+
+    // double strafe = -Robot.getOi().getPrimaryJoystick().getRawAxis(0);
+    // strafe = Utilities.deadband(strafe);
+    // // Square the strafe stick
+    // strafe = Math.copySign(Math.pow(strafe, 2.0), strafe);
+
+    double rotation = -Robot.getOi().getPrimaryJoystick().getRawAxis(4);
+    // rotation = Utilities.deadband(rotation);
+    // // Square the rotation stick
+    // rotation = Math.copySign(Math.pow(rotation, 2.0), rotation);
+
+    m_subsystem.arcadeDrive(forward, rotation);
+
   }
 
   // Called once the command ends or is interrupted.
