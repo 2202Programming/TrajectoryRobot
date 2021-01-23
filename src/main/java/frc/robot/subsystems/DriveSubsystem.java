@@ -85,12 +85,12 @@ public class DriveSubsystem extends SubsystemBase {
     // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
     m_odometry.update(readGyro(), left_encoder.getPosition()*kFeetPerRotation,
                     right_encoder.getPosition()*kFeetPerRotation);
-    SmartDashboard.putNumber("Gyro", m_gyro.getYaw());
+    SmartDashboard.putNumber("Gyro", readGyro().getDegrees());
   }
 
 
   Rotation2d readGyro() {
-    return Rotation2d.fromDegrees(m_gyro.getYaw());
+    return Rotation2d.fromDegrees(-m_gyro.getYaw());
   }
 
   /**
