@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANEncoder;
@@ -66,7 +67,8 @@ public class DriveSubsystem extends SubsystemBase {
     frontRight.follow(backRight);
 		middleLeft.follow(backLeft);
     frontLeft.follow(backLeft);
-    
+    m_gyro.calibrate();
+    m_gyro.reset();
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
   }
@@ -76,6 +78,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
     m_odometry.update(m_gyro.getRotation2d(), left_encoder.getPosition()*kFeetPerRotation,
                     right_encoder.getPosition()*kFeetPerRotation);
+    SmartDashboard.putNumber("Gyro", m_gyro.getRotation2d().getDegrees());
   }
 
   /**
@@ -185,7 +188,11 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
+    double heading = m_gyro.getRotation2d().getDegrees();
+  
+    SmartDashboard.putNumber("gryo", heading);
+
+    return heading;
   }
 
   /**
@@ -194,7 +201,13 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-    return -m_gyro.getRate();
+
+    double heading = -m_gyro.getRate();
+  
+    SmartDashboard.putNumber("rate", heading);
+
+    return heading;
+
   }
 }
 
