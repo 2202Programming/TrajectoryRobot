@@ -200,11 +200,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    double heading = m_gyro.getYaw();
-  
-    SmartDashboard.putNumber("gryo", heading);
-
-    return heading;
+    return readGyro().getDegrees();
   }
 
   /**
