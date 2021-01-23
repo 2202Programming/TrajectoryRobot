@@ -26,27 +26,25 @@ import frc.robot.Constants.CAN;
 
 public class DriveSubsystem extends SubsystemBase {
 
-    //just for notes
-	private final CANSparkMaxLowLevel.MotorType MT = CANSparkMaxLowLevel.MotorType.kBrushless;
+  // just for notes
+  private final CANSparkMaxLowLevel.MotorType MT = CANSparkMaxLowLevel.MotorType.kBrushless;
   private final CANSparkMax frontRight = new CANSparkMax(CAN.FR_SMAX, MT);
-	private final CANSparkMax frontLeft = new CANSparkMax(CAN.FL_SMAX, MT);
-	private final CANSparkMax backRight = new CANSparkMax(CAN.BR_SMAX, MT);
-	private final CANSparkMax backLeft = new CANSparkMax(CAN.BL_SMAX, MT);
-	private final CANSparkMax middleRight = new CANSparkMax(CAN.MR_SMAX, MT);
+  private final CANSparkMax frontLeft = new CANSparkMax(CAN.FL_SMAX, MT);
+  private final CANSparkMax backRight = new CANSparkMax(CAN.BR_SMAX, MT);
+  private final CANSparkMax backLeft = new CANSparkMax(CAN.BL_SMAX, MT);
+  private final CANSparkMax middleRight = new CANSparkMax(CAN.MR_SMAX, MT);
   private final CANSparkMax middleLeft = new CANSparkMax(CAN.ML_SMAX, MT);
   private final CANEncoder left_encoder = backLeft.getEncoder();
   private final CANEncoder right_encoder = backRight.getEncoder();
-  
-  //feet per motor rotation = wheel circumference / gearbox ratio
+
+  // feet per motor rotation = wheel circumference / gearbox ratio
   private final double kFeetPerRotation = (Math.PI * Constants.WHEEL_DIAMETER) / Constants.LOW_GEAR_RATIO;
 
   // The motors on the left side of the drive.
-  private final SpeedControllerGroup m_leftMotors =
-      new SpeedControllerGroup(backRight);
-        
+  private final SpeedControllerGroup m_leftMotors = new SpeedControllerGroup(backRight);
+
   // The motors on the right side of the drive.
-  private final SpeedControllerGroup m_rightMotors =
-      new SpeedControllerGroup(backLeft);
+  private final SpeedControllerGroup m_rightMotors = new SpeedControllerGroup(backLeft);
 
   // The robot's drive
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
@@ -61,12 +59,22 @@ public class DriveSubsystem extends SubsystemBase {
    * Creates a new DriveSubsystem.
    */
   public DriveSubsystem() {
-    //backRight.setInverted(true); //invert right side motors
+    // backRight.setInverted(true); //invert right side motors
 
     middleRight.follow(backRight);
     frontRight.follow(backRight);
-		middleLeft.follow(backLeft);
+    middleLeft.follow(backLeft);
     frontLeft.follow(backLeft);
+
+    while (m_gyro.isCalibrating()) {
+      try {
+        Thread.sleep(100);
+        System.out.println("calibrating gyro");
+      } catch (InterruptedException e) {
+  
+      }
+    }
+
     m_gyro.reset();
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(readGyro());
