@@ -2,8 +2,10 @@ package frc.robot;
 
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import edu.wpi.first.wpilibj.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 
 public class OI {
     /*
@@ -13,9 +15,10 @@ public class OI {
 
     public OI() {
         // Back button zeroes the drivetrain
-        new JoystickButton(primaryJoystick, 7).whenPressed(
-                new InstantCommand(() -> DriveSubsystem.getInstance().resetGyroscope())
-        );
+        // SubsystemBase random = null;
+        // new JoystickButton(primaryJoystick, 7).whenPressed(
+        //         new InstantCommand(() -> DriveSubsystem.resetOdometry(), random)
+        // );
     }
 
     public Joystick getPrimaryJoystick() {
