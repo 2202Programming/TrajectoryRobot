@@ -67,18 +67,22 @@ public class DriveSubsystem extends SubsystemBase {
     frontRight.follow(backRight);
 		middleLeft.follow(backLeft);
     frontLeft.follow(backLeft);
-    m_gyro.calibrate();
     m_gyro.reset();
     resetEncoders();
-    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
+    m_odometry = new DifferentialDriveOdometry(readGyro());
   }
 
   @Override
   public void periodic() {
     // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
-    m_odometry.update(m_gyro.getRotation2d(), left_encoder.getPosition()*kFeetPerRotation,
+    m_odometry.update(readGyro(), left_encoder.getPosition()*kFeetPerRotation,
                     right_encoder.getPosition()*kFeetPerRotation);
     SmartDashboard.putNumber("Gyro", m_gyro.getRotation2d().getDegrees());
+  }
+
+
+  Rotation2d readGyro() {
+    return Rotation2d.fromDegrees(m_gyro.getYaw());
   }
 
   /**
@@ -188,7 +192,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    double heading = m_gyro.getRotation2d().getDegrees();
+    double heading = m_gyro.getYaw();
   
     SmartDashboard.putNumber("gryo", heading);
 
