@@ -106,7 +106,7 @@ public class Robot extends TimedRobot {
     if (m_teleCommand != null) {
       m_teleCommand.schedule();
     }
-
+    CommandScheduler.getInstance().schedule(RobotContainer.getTeleCommand());
   }
 
   /**

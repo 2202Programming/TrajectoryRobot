@@ -33,13 +33,18 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  public final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private static final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  public static TankDrive m_teleCommand = new TankDrive(m_robotDrive);
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+  }
+
+  public static Command getTeleCommand(){
+    return m_teleCommand;
   }
 
   /**
