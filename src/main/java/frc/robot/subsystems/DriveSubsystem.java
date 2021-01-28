@@ -1,30 +1,29 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
+import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
-import com.revrobotics.CANSparkMaxLowLevel;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import static frc.robot.Constants.*;
-
 import frc.robot.Constants;
 import frc.robot.Constants.CAN;
 
 public class DriveSubsystem extends SubsystemBase {
+  //control the inverstion as best we can
+  // changing conversion factors on SparkMax don't seem to take signs
+  // setInverted doesn't work when using Neo brushless motors
+  final double KleftSign = -1.0;     // adjust left/right so positive is going 
+  final double KrightSign = 1.0;     // forward on the robot.  
+  final double Kgyro = -1.0;         // ccw is positive, just like geometry class
 
   // just for notes
   private final CANSparkMaxLowLevel.MotorType MT = CANSparkMaxLowLevel.MotorType.kBrushless;
@@ -55,6 +54,13 @@ public class DriveSubsystem extends SubsystemBase {
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
 
+  //tracking, updated in periodic, scaled and sign corrected physical units, robot frame
+  double m_velLeft;   
+  double m_velRight;
+  double m_posLeft;
+  double m_posRight;
+  double m_theta;    //heading   
+
   /**
    * Creates a new DriveSubsystem.
    */
@@ -67,9 +73,11 @@ public class DriveSubsystem extends SubsystemBase {
     middleLeft.follow(backLeft);
     frontLeft.follow(backLeft);
 
+    // this should cause a 1-2 second delay
+    m_gyro.calibrate();
     while (m_gyro.isCalibrating()) { //wait to zero yaw if calibration is still running
       try {
-        Thread.sleep(100);
+        Thread.sleep(250);
         System.out.println("calibrating gyro");
       } catch (InterruptedException e) {
   
@@ -79,22 +87,33 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.reset(); //should zero yaw but not working.
     m_gyro.zeroYaw(); //should zero yaw but not working.
     resetEncoders();
+    m_drive.setSafetyEnabled(false);  //for debugging
     m_odometry = new DifferentialDriveOdometry(readGyro());
   }
 
   @Override
   public void periodic() {
-    // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
-    m_odometry.update(readGyro(), -left_encoder.getPosition()*kFeetPerRotation,
-                    right_encoder.getPosition()*kFeetPerRotation);
-    SmartDashboard.putNumber("Heading", readGyro().getDegrees());
-    SmartDashboard.putNumber("Left Odometer", -left_encoder.getPosition()*kFeetPerRotation);
-    SmartDashboard.putNumber("Right Odometer", right_encoder.getPosition()*kFeetPerRotation);
+    //read and scale everything at once
+    m_velLeft = left_encoder.getVelocity()*kFeetPerRotation*KleftSign;   
+    m_posLeft = left_encoder.getPosition()*kFeetPerRotation*KleftSign;
+    m_velRight = right_encoder.getVelocity()*kFeetPerRotation*KleftSign;
+    m_posRight = right_encoder.getPosition()*kFeetPerRotation*KrightSign;
+    m_theta = Kgyro*m_gyro.getYaw();
+
+    // Update the odometry in the periodic block, physical units
+    m_odometry.update(readGyro(), m_posLeft, m_posRight);
+
+    // share for debugging
+    SmartDashboard.putNumber("DT/Heading", m_theta);
+    SmartDashboard.putNumber("DT/HeadingDot", getTurnRate());
+    SmartDashboard.putNumber("DT/L_Odometer", m_posLeft);
+    SmartDashboard.putNumber("DT/R_Odometer", m_posRight);
+    SmartDashboard.putNumber("DT/AvgVelocity", 0.5*(m_velLeft + m_velRight));
   }
 
   //Need to use getYaw to get -180 to 180 as expected.
   Rotation2d readGyro() {
-    return Rotation2d.fromDegrees(-m_gyro.getYaw()); //negative to get counterclockwise positive
+    return Rotation2d.fromDegrees(m_theta); 
   }
 
   /**
@@ -112,7 +131,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The current wheel speeds.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(left_encoder.getVelocity(), right_encoder.getVelocity());
+    return new DifferentialDriveWheelSpeeds(m_velLeft, m_velRight);
   }
 
   /**
@@ -122,7 +141,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    m_odometry.resetPosition(pose, m_gyro.getRotation2d());
+    m_odometry.resetPosition(pose, m_gyro.getRotation2d());  // has a -1 in the interface for they gyro
   }
 
   /**
@@ -142,8 +161,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    m_leftMotors.setVoltage(leftVolts);
-    m_rightMotors.setVoltage(-rightVolts);
+    m_leftMotors.setVoltage(KleftSign * leftVolts);
+    m_rightMotors.setVoltage(KrightSign * rightVolts);
     m_drive.feed();
   }
 
@@ -156,20 +175,21 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Gets the average distance of the two encoders.
+   * Gets the average distance of the two encoders. Physical units.
    *
    * @return the average of the two encoder readings
    */
   public double getAverageEncoderDistance() {
-    return (-left_encoder.getPosition()*kFeetPerRotation + right_encoder.getPosition()*kFeetPerRotation) / 2.0;
+    return (m_posLeft + m_posRight) / 2.0;
   }
 
+  /*  DPL hid encoder access, not sure why that would be public */
   /**
    * Gets the left drive encoder.
    *
    * @return the left drive encoder
    */
-  public CANEncoder getLeftEncoder() {
+  /*public*/ CANEncoder getLeftEncoder() {
     return left_encoder;
   }
 
@@ -178,7 +198,7 @@ public class DriveSubsystem extends SubsystemBase {
    *
    * @return the right drive encoder
    */
-  public CANEncoder getRightEncoder() {
+  /*public*/ CANEncoder getRightEncoder() {
     return right_encoder;
   }
 
@@ -213,13 +233,9 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-
-    double heading = -m_gyro.getRate();
-  
-    SmartDashboard.putNumber("rate", heading);
-
+    double heading = Kgyro*m_gyro.getRate();
+    
     return heading;
-
   }
 }
 

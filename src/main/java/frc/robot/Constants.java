@@ -20,15 +20,8 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-        // Drivetrain
-        public static final int FL_SMAX = 30;
-        public static final int ML_SMAX = 31;
-        public static final int BL_SMAX = 32;
-        public static final int FR_SMAX = 33;
-        public static final int MR_SMAX = 34;
-        public static final int BR_SMAX = 35;
-
-        public static final double LOW_GEAR_RATIO = 18.0;
+       
+        public static final double LOW_GEAR_RATIO = 18.75;
         public static final double WHEEL_DIAMETER = 0.5; //in feet
 
             /**
@@ -56,10 +49,11 @@ public final class Constants {
         public static final int BR_SMAX = 35;
     }
 
-        // These characterization values MUST be determined either experimentally or theoretically
+    // These characterization values MUST be determined either experimentally or theoretically
     // for *your* robot's drive.
     // The Robot Characterization Toolsuite provides a convenient tool for obtaining these
     // values for your robot.
+    // DPL we are using Feet not Meters, robot was profiled with feet so numbers are unadjusted
     
     public static final double ksVolts = 0.105; //updated
     public static final double kvVoltSecondsPerMeter = 1.49; //updated
@@ -71,10 +65,10 @@ public final class Constants {
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
 
-        public static final double kMaxSpeedMetersPerSecond = 1;
+    public static final double kMaxSpeedMetersPerSecond = 1;
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
 
-        // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
-        public static final double kRamseteB = 2;
-        public static final double kRamseteZeta = 0.7;
+    // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
+    public static final double kRamseteB = 2;
+    public static final double kRamseteZeta = 0.7;
 }
