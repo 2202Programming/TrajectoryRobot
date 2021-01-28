@@ -60,6 +60,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public DriveSubsystem() {
     // backRight.setInverted(true); //invert right side motors
+    //left_encoder.setPositionConversionFactor(-1.0);
 
     middleRight.follow(backRight);
     frontRight.follow(backRight);
@@ -84,10 +85,10 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block, convert motor rotations to robot feet traveled
-    m_odometry.update(readGyro(), left_encoder.getPosition()*kFeetPerRotation,
+    m_odometry.update(readGyro(), -left_encoder.getPosition()*kFeetPerRotation,
                     right_encoder.getPosition()*kFeetPerRotation);
     SmartDashboard.putNumber("Heading", readGyro().getDegrees());
-    SmartDashboard.putNumber("Left Odometer", left_encoder.getPosition()*kFeetPerRotation);
+    SmartDashboard.putNumber("Left Odometer", -left_encoder.getPosition()*kFeetPerRotation);
     SmartDashboard.putNumber("Right Odometer", right_encoder.getPosition()*kFeetPerRotation);
   }
 
@@ -160,7 +161,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the average of the two encoder readings
    */
   public double getAverageEncoderDistance() {
-    return (left_encoder.getPosition()*kFeetPerRotation + right_encoder.getPosition()*kFeetPerRotation) / 2.0;
+    return (-left_encoder.getPosition()*kFeetPerRotation + right_encoder.getPosition()*kFeetPerRotation) / 2.0;
   }
 
   /**
