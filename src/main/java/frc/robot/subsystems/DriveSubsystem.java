@@ -60,6 +60,8 @@ public class DriveSubsystem extends SubsystemBase {
   double m_posLeft;
   double m_posRight;
   double m_theta;    //heading   
+  double m_voltRight;
+  double m_voltLeft;
 
   /**
    * Creates a new DriveSubsystem.
@@ -108,7 +110,10 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("DT/HeadingDot", getTurnRate());
     SmartDashboard.putNumber("DT/L_Odometer", m_posLeft);
     SmartDashboard.putNumber("DT/R_Odometer", m_posRight);
-    SmartDashboard.putNumber("DT/AvgVelocity", 0.5*(m_velLeft + m_velRight));
+    SmartDashboard.putNumber("DT/L_Vel", m_velLeft);
+    SmartDashboard.putNumber("DT/R_Vel", m_velRight);
+    SmartDashboard.putNumber("DT/L_Volts", m_voltLeft);
+    SmartDashboard.putNumber("DT/R_Volts", m_voltRight);
   }
 
   //Need to use getYaw to get -180 to 180 as expected.
@@ -161,8 +166,10 @@ public class DriveSubsystem extends SubsystemBase {
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    m_leftMotors.setVoltage(KleftSign * leftVolts);
-    m_rightMotors.setVoltage(KrightSign * rightVolts);
+    m_voltLeft = KleftSign * leftVolts;
+    m_voltRight = KrightSign * rightVolts;
+    m_leftMotors.setVoltage(m_voltLeft);
+    m_rightMotors.setVoltage(m_voltRight);
     m_drive.feed();
   }
 
