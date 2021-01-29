@@ -85,9 +85,13 @@ public class DriveSubsystem extends SubsystemBase {
   
       }
     }
+    System.out.println("Pre-Zero yaw:" + m_gyro.getYaw());
 
     m_gyro.reset(); //should zero yaw but not working.
     m_gyro.zeroYaw(); //should zero yaw but not working.
+
+    System.out.println("Post-Zero yaw:" + m_gyro.getYaw());
+
     resetEncoders();
     m_drive.setSafetyEnabled(false);  //for debugging
     m_odometry = new DifferentialDriveOdometry(readGyro());
