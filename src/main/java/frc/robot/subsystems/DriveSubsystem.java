@@ -21,8 +21,8 @@ public class DriveSubsystem extends SubsystemBase {
   //control the inverstion as best we can
   // changing conversion factors on SparkMax don't seem to take signs
   // setInverted doesn't work when using Neo brushless motors
-  final double KleftSign = 1.0;     // adjust left/right so positive is going 
-  final double KrightSign = -1.0;     // forward on the robot.  
+  final double KleftSign = -1.0;     // adjust left/right so positive is going 
+  final double KrightSign = 1.0;     // forward on the robot.  
   final double Kgyro = -1.0;         // ccw is positive, just like geometry class
 
   // just for notes
