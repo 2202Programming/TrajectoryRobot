@@ -7,7 +7,9 @@
 
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -21,10 +23,12 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import frc.robot.commands.Reset;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -36,6 +40,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private static final DriveSubsystem m_robotDrive = new DriveSubsystem();
   public static TankDrive m_teleCommand = new TankDrive(m_robotDrive);
+
+  static public Map<String, Object> deviceMap = new HashMap<String, Object>();  
+
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
@@ -48,6 +55,10 @@ public class RobotContainer {
     return m_teleCommand;
   }
 
+  public static DriveSubsystem getRobotDrive(){
+    return m_robotDrive;
+  }
+
   /**
    * Use this method to define your button->command mappings.  Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -55,6 +66,8 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    //assigned to button A (1)
+    Robot.getOi().resetButton.whenPressed(new Reset(m_robotDrive));
   }
 
 
