@@ -6,7 +6,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -21,32 +20,32 @@ public class DriveSubsystem extends SubsystemBase {
   //control the inverstion as best we can
   // changing conversion factors on SparkMax don't seem to take signs
   // setInverted doesn't work when using Neo brushless motors
-  final double KleftSign = -1.0;     // adjust left/right so positive is going 
-  final double KrightSign = 1.0;     // forward on the robot.  
+  final double KleftSign = 1.0;      // adjust left/right so positive is going 
+  final double KrightSign = -1.0;    // forward on the robot.  
   final double Kgyro = -1.0;         // ccw is positive, just like geometry class
+  /** 
+   * Inversion to apply to all motors
+   * During robot characterization we found we had to invert all the SparkMax Motor
+   * controllers to make that code match forward-positive convention.
+   */
+  final boolean motorInvert = true; 
 
-  // just for notes
+  // Create drivetrain motor controllers, 3 per side, follow back motors
   private final CANSparkMaxLowLevel.MotorType MT = CANSparkMaxLowLevel.MotorType.kBrushless;
   private final CANSparkMax frontRight = new CANSparkMax(CAN.FR_SMAX, MT);
   private final CANSparkMax frontLeft = new CANSparkMax(CAN.FL_SMAX, MT);
-  private final CANSparkMax backRight = new CANSparkMax(CAN.BR_SMAX, MT);
-  private final CANSparkMax backLeft = new CANSparkMax(CAN.BL_SMAX, MT);
+  private final CANSparkMax m_backRight = new CANSparkMax(CAN.BR_SMAX, MT);  // master controller 
+  private final CANSparkMax m_backLeft = new CANSparkMax(CAN.BL_SMAX, MT);   // master controller 
   private final CANSparkMax middleRight = new CANSparkMax(CAN.MR_SMAX, MT);
   private final CANSparkMax middleLeft = new CANSparkMax(CAN.ML_SMAX, MT);
-  private final CANEncoder left_encoder = backLeft.getEncoder();
-  private final CANEncoder right_encoder = backRight.getEncoder();
+  private final CANEncoder left_encoder = m_backLeft.getEncoder();
+  private final CANEncoder right_encoder = m_backRight.getEncoder();
 
   // feet per motor rotation = wheel circumference / gearbox ratio
   private final double kFeetPerRotation = (Math.PI * Constants.WHEEL_DIAMETER) / Constants.LOW_GEAR_RATIO;
 
-  // The motors on the left side of the drive.
-  private final SpeedControllerGroup m_leftMotors = new SpeedControllerGroup(backRight);
-
-  // The motors on the right side of the drive.
-  private final SpeedControllerGroup m_rightMotors = new SpeedControllerGroup(backLeft);
-
   // The robot's drive
-  private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
+  private final DifferentialDrive m_drive = new DifferentialDrive(m_backLeft, m_backRight);
 
   // The gyro sensor
   private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
@@ -67,13 +66,19 @@ public class DriveSubsystem extends SubsystemBase {
    * Creates a new DriveSubsystem.
    */
   public DriveSubsystem() {
-    // backRight.setInverted(true); //invert right side motors
-    //left_encoder.setPositionConversionFactor(-1.0);
+    //Apply motor inversions
+    frontLeft.setInverted(motorInvert);
+    middleLeft.setInverted(motorInvert);
+    m_backLeft.setInverted(motorInvert);
+    frontRight.setInverted(motorInvert);
+    middleRight.setInverted(motorInvert);
+    m_backRight.setInverted(motorInvert);
 
-    middleRight.follow(backRight);
-    frontRight.follow(backRight);
-    middleLeft.follow(backLeft);
-    frontLeft.follow(backLeft);
+    // make front and middle follow the back for each side
+    middleRight.follow(m_backRight);
+    frontRight.follow(m_backRight);
+    middleLeft.follow(m_backLeft);
+    frontLeft.follow(m_backLeft);
 
     // this should cause a 1-2 second delay
     m_gyro.calibrate();
@@ -100,9 +105,9 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     //read and scale everything at once
-    m_velLeft = left_encoder.getVelocity()*kFeetPerRotation*KleftSign;   
+    m_velLeft = left_encoder.getVelocity()*kFeetPerRotation*KleftSign / 60.0;   
     m_posLeft = left_encoder.getPosition()*kFeetPerRotation*KleftSign;
-    m_velRight = right_encoder.getVelocity()*kFeetPerRotation*KrightSign;
+    m_velRight = right_encoder.getVelocity()*kFeetPerRotation*KrightSign / 60.0;
     m_posRight = right_encoder.getPosition()*kFeetPerRotation*KrightSign;
     m_theta = Kgyro*m_gyro.getYaw();
 
@@ -172,8 +177,8 @@ public class DriveSubsystem extends SubsystemBase {
   public void tankDriveVolts(double leftVolts, double rightVolts) {
     m_voltLeft = KleftSign * leftVolts;
     m_voltRight = KrightSign * rightVolts;
-    m_leftMotors.setVoltage(m_voltLeft);
-    m_rightMotors.setVoltage(m_voltRight);
+    m_backLeft.setVoltage(m_voltLeft);
+    m_backRight.setVoltage(m_voltRight);
     m_drive.feed();
   }
 
