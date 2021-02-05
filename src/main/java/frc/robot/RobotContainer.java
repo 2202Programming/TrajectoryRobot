@@ -7,10 +7,14 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,6 +26,7 @@ import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.commands.Reset;
 import frc.robot.commands.TankDrive;
@@ -112,8 +117,17 @@ public class RobotContainer {
         config
     );
 
+    String trajectoryJSON = "paths/TurnNinetyRight.wpilib.json";
+      Trajectory trajectory = new Trajectory();
+      try {
+        Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+        trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      } catch (IOException ex) {
+        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+      }
+
     RamseteCommand ramseteCommand = new RamseteCommand(
-        exampleTrajectory,
+        trajectory,
         m_robotDrive::getPose,
         new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
         new SimpleMotorFeedforward(Constants.ksVolts,
