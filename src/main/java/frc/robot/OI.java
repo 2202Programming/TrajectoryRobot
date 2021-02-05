@@ -1,11 +1,8 @@
 package frc.robot;
 
-import frc.robot.subsystems.DriveSubsystem;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.Reset;
 
 
 public class OI {
@@ -15,6 +12,7 @@ public class OI {
     private Joystick primaryJoystick = new Joystick(0);
     //resetButton is button A (id 1)
     JoystickButton resetButton = new JoystickButton(primaryJoystick, 1);
+    JoystickButton runButton = new JoystickButton(primaryJoystick, 2);
 
     public OI() {
         // Back button zeroes the drivetrain

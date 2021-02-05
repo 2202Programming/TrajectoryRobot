@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.commands.Reset;
 import frc.robot.commands.TankDrive;
+import frc.robot.commands.drivePath;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -73,6 +74,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     //assigned to button A (1)
     Robot.getOi().resetButton.whenPressed(new Reset(m_robotDrive));
+    Robot.getOi().runButton.whenPressed(new drivePath(m_robotDrive, "TurnNinetyRight"));
   }
 
 
