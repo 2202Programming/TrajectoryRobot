@@ -15,15 +15,14 @@ import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class drivePath extends InstantCommand {
+
+public class drivePath extends CommandBase {
 
   private final DriveSubsystem m_robotDrive;
   private Trajectory trajectory;
@@ -34,6 +33,9 @@ public class drivePath extends InstantCommand {
 
     m_robotDrive = drive;
     pathname = path;
+
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(drive);
 
   }
 
@@ -85,5 +87,17 @@ public class drivePath extends InstantCommand {
     return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
   }
 
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    Command runcommand = RobotContainer.getTeleCommand();
+    runcommand.schedule();
+  }
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    return true;
+  }
 
 }
