@@ -11,8 +11,11 @@ public class OI {
      */
     private Joystick primaryJoystick = new Joystick(0);
     //resetButton is button A (id 1)
-    JoystickButton resetButton = new JoystickButton(primaryJoystick, 1);
-    JoystickButton runButton = new JoystickButton(primaryJoystick, 2);
+    JoystickButton aButton = new JoystickButton(primaryJoystick, 1); //A 
+    JoystickButton bButton = new JoystickButton(primaryJoystick, 2); //B
+    JoystickButton xButton = new JoystickButton(primaryJoystick, 3); //x
+    JoystickButton yButton = new JoystickButton(primaryJoystick, 4); //y
+    
 
     public OI() {
         // Back button zeroes the drivetrain

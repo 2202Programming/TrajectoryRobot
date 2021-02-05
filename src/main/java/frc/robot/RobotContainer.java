@@ -73,8 +73,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     //assigned to button A (1)
-    Robot.getOi().resetButton.whenPressed(new Reset(m_robotDrive));
-    Robot.getOi().runButton.whenPressed(new drivePath(m_robotDrive, "TurnNinetyRight"));
+    Robot.getOi().aButton.whenPressed(new Reset(m_robotDrive));
+    Robot.getOi().bButton.whenPressed(new drivePath(m_robotDrive, "TurnNinetyRight"));
   }
 
 
