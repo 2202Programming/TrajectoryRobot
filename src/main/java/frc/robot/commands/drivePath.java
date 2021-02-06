@@ -83,8 +83,7 @@ public class drivePath extends CommandBase {
   
 
     // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0))
-                .andThen(RobotContainer.getTeleCommand());
+    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
   }
 
   // Called once the command ends or is interrupted.

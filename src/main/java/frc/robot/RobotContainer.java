@@ -55,6 +55,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    m_robotDrive.setDefaultCommand(m_teleCommand);
   }
 
   public static Command getTeleCommand(){
@@ -74,7 +75,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     //assigned to button A (1)
     Robot.getOi().aButton.whenPressed(new Reset(m_robotDrive));
-    Robot.getOi().bButton.whenPressed(new drivePath(m_robotDrive, "TurnNinetyRight"));
+    Robot.getOi().bButton.whenPressed(new drivePath(m_robotDrive, "BounceSinglePath"));
   }
 
 
@@ -114,7 +115,7 @@ public class RobotContainer {
             //new Translation2d(2, -1)
         ),
         // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(0.5, 0, new Rotation2d(0)),
+        new Pose2d(3,3, new Rotation2d(90)),
         // Pass config
         config
     );
@@ -129,7 +130,7 @@ public class RobotContainer {
       }
 
     RamseteCommand ramseteCommand = new RamseteCommand(
-        trajectory,
+        exampleTrajectory,
         m_robotDrive::getPose,
         new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
         new SimpleMotorFeedforward(Constants.ksVolts,
