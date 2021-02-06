@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 public final class Constants {
        
         public static final double LOW_GEAR_RATIO = 18.75;
-        public static final double WHEEL_DIAMETER = 0.5; //in feet
+        public static final double WHEEL_DIAMETER = 0.5*0.975; //in feet * calibration
 
             /**
      * CAN bus IDs
@@ -60,7 +60,7 @@ public final class Constants {
     public static final double kaVoltSecondsSquaredPerMeter = 0.15; //updated2
 
     public static final double kPDriveVel = 2.44; //updated
-    public static final double kTrackwidthMeters = 1.4348; //updated2
+    public static final double kTrackwidthMeters = 2.08333;   // from char=1.4348; //updated2
 
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
