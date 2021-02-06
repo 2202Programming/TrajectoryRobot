@@ -36,13 +36,7 @@ public class drivePath extends CommandBase {
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
-
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-
+    
     //load path
     String trajectoryJSON = "paths/" + pathname + ".wpilib.json";
     trajectory = new Trajectory();
@@ -53,6 +47,13 @@ public class drivePath extends CommandBase {
         DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
       }
 
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    // Reset odometry to the starting pose of the trajectory.
+    m_robotDrive.resetOdometry(trajectory.getInitialPose());
   }
   
   // Called every time the scheduler runs while the command is scheduled.
@@ -79,19 +80,18 @@ public class drivePath extends CommandBase {
         m_robotDrive::tankDriveVolts,
         m_robotDrive
     );
-
-    // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(trajectory.getInitialPose());
+  
 
     // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
+    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0))
+                .andThen(RobotContainer.getTeleCommand());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Command runcommand = RobotContainer.getTeleCommand();
-    runcommand.schedule();
+    //Command runcommand = RobotContainer.getTeleCommand();
+    //runcommand.schedule();
   }
 
   // Returns true when the command should end.
