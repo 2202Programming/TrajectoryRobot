@@ -24,6 +24,20 @@ public final class Constants {
         public static final double LOW_GEAR_RATIO = 18.75;
         public static final double WHEEL_DIAMETER = 0.5*0.975; //in feet * calibration
 
+    // Intake
+    public static final int MAGAZINE_PCM_CAN_ID = CAN.PCM2;
+    public static final int MAGAZINE_UP_PCM = 0;
+    public static final int MAGAZINE_DOWN_PCM = 1;
+    public static final int INTAKE_PCM_CAN_ID = CAN.PCM1;
+    public static final int INTAKE_UP_SOLENOID_PCM = 4;
+    public static final int INTAKE_DOWN_SOLENOID_PCM = 5;
+
+       // PWM assignments on the Rio
+       public static final class PWM {
+        public static final int INTAKE = 0;
+        public static final int MAGAZINE = 9; 
+      }
+
             /**
      * CAN bus IDs
      * 

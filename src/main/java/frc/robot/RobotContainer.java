@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
@@ -31,10 +30,11 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
 import frc.robot.commands.Reset;
 import frc.robot.commands.TankDrive;
 import frc.robot.commands.drivePath;
+import frc.robot.commands.drivePathWithIntake;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Intake_Subsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -45,14 +45,16 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private static final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  public static TankDrive m_teleCommand = new TankDrive(m_robotDrive);
-
+  public static TankDrive m_teleCommand;
+  public final Intake_Subsystem intake;
   static public Map<String, Object> deviceMap = new HashMap<String, Object>();  
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_teleCommand = new TankDrive(m_robotDrive);
+    intake = new Intake_Subsystem(); 
     // Configure the button bindings
     configureButtonBindings();
     m_robotDrive.setDefaultCommand(m_teleCommand);
@@ -75,7 +77,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     //assigned to button A (1)
     Robot.getOi().aButton.whenPressed(new Reset(m_robotDrive));
-    Robot.getOi().bButton.whenPressed(new drivePath(m_robotDrive, "BounceSinglePath"));
+    Robot.getOi().bButton.whenPressed(new drivePath(m_robotDrive, "TurnFortyFiveLeft"));
+    Robot.getOi().xButton.whenPressed(new drivePathWithIntake(m_robotDrive, intake, "TurnFortyFiveLeft"));
   }
 
 

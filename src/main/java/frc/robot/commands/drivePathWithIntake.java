@@ -19,22 +19,25 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Intake_Subsystem;
 
 
-public class drivePath extends CommandBase {
+public class drivePathWithIntake extends CommandBase {
 
   private final DriveSubsystem m_robotDrive;
+  private final Intake_Subsystem m_intake;
   private Trajectory trajectory;
   private String pathname;
 
-  public drivePath(DriveSubsystem drive, String path) {
+  public drivePathWithIntake(DriveSubsystem drive, Intake_Subsystem intake, String path) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     m_robotDrive = drive;
     pathname = path;
+    m_intake = intake;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drive);
+    addRequirements(drive,intake);
     
     //load path
     String trajectoryJSON = "paths/" + pathname + ".wpilib.json";
@@ -53,6 +56,9 @@ public class drivePath extends CommandBase {
   public void initialize() {
     // Reset odometry to the starting pose of the trajectory.
     m_robotDrive.resetOdometry(trajectory.getInitialPose());
+    m_intake.lowerIntake();
+    m_intake.magazineOn(0.7);
+    m_intake.intakeOn(0.5);
   }
   
   // Called every time the scheduler runs while the command is scheduled.
@@ -90,6 +96,8 @@ public class drivePath extends CommandBase {
   public void end(boolean interrupted) {
     //Command runcommand = RobotContainer.getTeleCommand();
     //runcommand.schedule();
+    m_intake.magazineOff();
+    m_intake.intakeOff();
   }
 
   // Returns true when the command should end.
