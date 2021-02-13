@@ -123,6 +123,11 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("DT/R_Vel", m_velRight);
     SmartDashboard.putNumber("DT/L_Volts", m_voltLeft);
     SmartDashboard.putNumber("DT/R_Volts", m_voltRight);
+    SmartDashboard.putNumber("DT/POSE/X", getPose().getX() );
+    SmartDashboard.putNumber("DT/POSE/Y", getPose().getY() );
+    SmartDashboard.putNumber("DT/POSE/The", getPose().getRotation().getDegrees() );  
+    SmartDashboard.putNumber("DT/POSE/VoltLeft",  m_voltLeft);
+	  SmartDashboard.putNumber("DT/POSE/VoltRight",  m_voltRight);
   }
 
   //Need to use getYaw to get -180 to 180 as expected.
