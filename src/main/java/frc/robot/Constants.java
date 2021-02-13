@@ -31,6 +31,7 @@ public final class Constants {
     public static final int INTAKE_PCM_CAN_ID = CAN.PCM1;
     public static final int INTAKE_UP_SOLENOID_PCM = 4;
     public static final int INTAKE_DOWN_SOLENOID_PCM = 5;
+    public static final int INTAKE_LIGHTBREAK = 2;
 
        // PWM assignments on the Rio
        public static final class PWM {

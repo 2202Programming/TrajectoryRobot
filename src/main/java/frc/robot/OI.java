@@ -15,6 +15,8 @@ public class OI {
     JoystickButton bButton = new JoystickButton(primaryJoystick, 2); //B
     JoystickButton xButton = new JoystickButton(primaryJoystick, 3); //x
     JoystickButton yButton = new JoystickButton(primaryJoystick, 4); //y
+    JoystickButton LB = new JoystickButton(primaryJoystick, 5); //Left bumper
+    JoystickButton RB = new JoystickButton(primaryJoystick, 6); //Right bumper
     
 
     public OI() {
